@@ -19,14 +19,11 @@ export type Primitives = NumberConstructor | StringConstructor | BooleanConstruc
 
 export type SchemaCtor<T extends Schema = Schema> = Primitives | (new () => T)
 
-export type TypeOf<T extends SchemaCtor | Schema> = T extends DateConstructor
-  ? DateInstanceType
-  : T extends Primitives
-  ? ReturnType<T>
-  : T extends new () => { __type: infer U }
-  ? U
-  : T extends Schema
-  ? T['__type']
+export type TypeOf<T extends SchemaCtor | Schema> =
+  T extends DateConstructor ? DateInstanceType
+  : T extends Primitives ? ReturnType<T>
+  : T extends new () => { __type: infer U } ? U
+  : T extends Schema ? T['__type']
   : never
 
 export class Number extends Schema {
@@ -69,20 +66,14 @@ export const List = <T extends SchemaCtorInput>(Item: T) => {
   }
 }
 
-export type SchemaField<T extends object, key extends keyof T> = key extends '__type'
-  ? never
-  : T[key] extends undefined
-  ? never
-  : T[key] extends SchemaCtorInput | FieldInfo | undefined
-  ? key
+export type SchemaField<T extends object, key extends keyof T> = key extends '__type' ? never
+  : T[key] extends undefined ? never
+  : T[key] extends SchemaCtorInput | FieldInfo | undefined ? key
   : never
 
-export type TypeOfField<T> = T extends FieldInfo
-  ? TypeOf<T['__type']>
-  : T extends SchemaCtorInput
-  ? TypeOfSchemaCtorInput<T>
-  : T extends undefined
-  ? undefined
+export type TypeOfField<T> = T extends FieldInfo ? TypeOf<T['__type']>
+  : T extends SchemaCtorInput ? TypeOfSchemaCtorInput<T>
+  : T extends undefined ? undefined
   : never
 
 export abstract class ObjectType extends Schema {
@@ -163,17 +154,13 @@ export type FieldDescriptors = {
   [key: string]: FieldDescriptor | FieldDescriptors
 }
 
-export type TypeOfFieldDescriptor<T extends FieldDescriptor> = T extends SchemaCtor
-  ? TypeOf<T>
-  : T extends FieldInfo
-  ? TypeOf<T['__type']>
+export type TypeOfFieldDescriptor<T extends FieldDescriptor> = T extends SchemaCtor ? TypeOf<T>
+  : T extends FieldInfo ? TypeOf<T['__type']>
   : never
 
 export type TypeOfFieldDescriptors<T extends FieldDescriptors> = {
-  [key in keyof T]: T[key] extends FieldDescriptor
-  ? TypeOfFieldDescriptor<T[key]>
-  : T[key] extends FieldDescriptors
-  ? ShallowPrettier<TypeOfFieldDescriptors<T[key]>>
+  [key in keyof T]: T[key] extends FieldDescriptor ? TypeOfFieldDescriptor<T[key]>
+  : T[key] extends FieldDescriptors ? ShallowPrettier<TypeOfFieldDescriptors<T[key]>>
   : never
 }
 
@@ -277,16 +264,11 @@ export const ReadOnlyDeep = <T extends SchemaCtorInput>(Item: T) => {
 }
 
 /* eslint-disable */
-export type SchemaTypeOf<T extends SchemaCtor> = T extends NumberConstructor
-  ? Number
-  : T extends StringConstructor
-  ? String
-  : T extends BooleanConstructor
-  ? Boolean
-  : T extends DateConstructor
-  ? Date
-  : T extends new () => infer S
-  ? S
+export type SchemaTypeOf<T extends SchemaCtor> = T extends NumberConstructor ? Number
+  : T extends StringConstructor ? String
+  : T extends BooleanConstructor ? Boolean
+  : T extends DateConstructor ? Date
+  : T extends new () => infer S ? S
   : never
 /* eslint-enable */
 
@@ -333,16 +315,14 @@ export const isFieldDescriptors = (input: any): input is FieldDescriptors => {
 
 export type SchemaCtorInput = SchemaCtor | FieldDescriptors
 
-export type TypeOfSchemaCtorInput<T extends SchemaCtor | FieldDescriptors> = T extends SchemaCtor
-  ? TypeOf<T>
-  : T extends FieldDescriptors
-  ? ShallowPrettier<TypeOfFieldDescriptors<T>>
+export type TypeOfSchemaCtorInput<T extends SchemaCtor | FieldDescriptors> =
+  T extends SchemaCtor ? TypeOf<T>
+  : T extends FieldDescriptors ? ShallowPrettier<TypeOfFieldDescriptors<T>>
   : never
 
-export type ToSchemaCtor<T extends SchemaCtorInput> = T extends SchemaCtor
-  ? T
-  : T extends FieldDescriptors
-  ? new () => { __type: ShallowPrettier<TypeOfFieldDescriptors<T>> }
+export type ToSchemaCtor<T extends SchemaCtorInput> =
+  T extends SchemaCtor ? T
+  : T extends FieldDescriptors ? new () => { __type: ShallowPrettier<TypeOfFieldDescriptors<T>> }
   : never
 
 export type SchemaCtorInputs =
@@ -383,17 +363,12 @@ export const toSchemaCtors = <T extends SchemaCtorInputs>(Inputs: T): ToSchemaCt
 }
 
 /* eslint-enable */
-export type InstanceTypeOf<T extends SchemaCtor> = T extends NumberConstructor
-  ? number
-  : T extends StringConstructor
-  ? string
-  : T extends BooleanConstructor
-  ? boolean
-  : T extends DateConstructor
-  ? Date
-  : T extends new () => infer R
-  ? R
-  : never
+export type InstanceTypeOf<T extends SchemaCtor> =
+  T extends NumberConstructor ? number
+  : T extends StringConstructor ? string
+  : T extends BooleanConstructor ? boolean
+  : T extends DateConstructor ? Date
+  : T extends new () => infer R ? R : never
 /* eslint-enable */
 
 const instanceWeakMap = new WeakMap<SchemaCtor, Schema>()
@@ -426,10 +401,9 @@ export const getInstance = <T extends SchemaCtor>(Ctor: T): InstanceTypeOf<T> =>
   return instance as InstanceTypeOf<T>
 }
 
-export type TypeOfTuple<T> = T extends []
-  ? []
-  : T extends [SchemaCtor, ...infer Rest]
-  ? [TypeOf<T[0]>, ...TypeOfTuple<Rest>]
+export type TypeOfTuple<T> =
+  T extends [] ? []
+  : T extends [SchemaCtor, ...infer Rest] ? [TypeOf<T[0]>, ...TypeOfTuple<Rest>]
   : []
 
 export abstract class TupleType extends Schema {
