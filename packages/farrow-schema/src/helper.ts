@@ -246,3 +246,17 @@ export const partial: typeof partialStruct & typeof partialObject = (
 
   throw new Error(`Unknown Schema Constructor: ${Ctor}`)
 }
+
+const includeUnion = () => {
+
+  return
+}
+export const include  = (
+  Ctor: new () => S.UnionType,
+) => {
+  if (Ctor?.prototype instanceof ObjectType) {
+    return partialObject(Ctor as any)
+  }
+
+  throw new Error(`Unknown Schema Constructor: ${Ctor}`)
+}
